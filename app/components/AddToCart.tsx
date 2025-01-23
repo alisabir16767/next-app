@@ -1,9 +1,11 @@
 'use client'
 import React from "react";
+import { Button } from "@/components/ui/button"
 
 const AddToCart = () => {
   return <div>
-    <button  onClick={()=>console.log("clicked")}>Add to cart</button>
+    <Button >Click me</Button>
+
   </div>;
 };
 
