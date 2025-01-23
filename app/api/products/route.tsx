@@ -1,21 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import schema from './schema';
-export function GET(request:NextRequest){
-return NextResponse.json([
-   {id:1,name:"milk",price:215},
-   {id:2,name:"sugar",price:21},
-   {id:3,name:"mango",price:25},
+import { PrismaClient } from "@prisma/client";
 
-])
+const prisma = new PrismaClient();
+
+export async function GET(request: NextRequest) {
+  const products = await prisma.product.findMany();
+  return NextResponse.json(products, { status: 200 });
 }
 
-export async function POST(request:NextRequest){
-   const body=await request.json();
-   const validation=schema.safeParse(body);
-   if(!validation.success){
-      return NextResponse.json(validation.error.errors,{status:400});
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const validation = schema.safeParse(body);
 
-   }
-   return NextResponse.json({id:10,name:body.name,price:body.price},{status:201});
+    if (!validation.success) {
+      return NextResponse.json(validation.error.errors, { status: 400 });
+    }
 
+    const newProduct = await prisma.product.create({
+      data: {
+        name: body.name,
+        price: body.price,
+      },
+    });
+
+    return NextResponse.json(newProduct, { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'An error occurred while processing the request.' },
+      { status: 500 }
+    );
+  }
 }
